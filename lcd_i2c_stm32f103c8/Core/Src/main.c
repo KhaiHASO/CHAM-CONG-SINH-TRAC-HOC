@@ -19,9 +19,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
-/* Private includes ----------------------------------------------------------*/
 #include "i2c-lcd.h"
+/* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -43,8 +42,6 @@
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
 
-UART_HandleTypeDef huart1;
-
 /* USER CODE BEGIN PV */
 char cc1[] = {0x00, 0x00, 0x0A, 0x00, 0x11, 0x0E, 0x00, 0x00};  // smiley
 char cc2[] = {0x0E, 0x0E, 0x04, 0x0E, 0x15, 0x04, 0x0A, 0x0A};  // nguoi
@@ -60,7 +57,6 @@ char cc8[] = {0x04, 0x04, 0x1F, 0x04, 0x04, 0x00, 0x1F, 0x00};  // +-
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
-static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -99,19 +95,119 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
-  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   lcd_init();
   /* USER CODE END 2 */
+	lcd_send_cmd(0x40);
+  for (int i=0; i<8; i++) lcd_send_data(cc1[i]);
+
+  lcd_send_cmd(0x40+8);
+  for (int i=0; i<8; i++) lcd_send_data(cc2[i]);
+
+  lcd_send_cmd(0x40+16);
+  for (int i=0; i<8; i++) lcd_send_data(cc3[i]);
+
+  lcd_send_cmd(0x40+24);
+  for (int i=0; i<8; i++) lcd_send_data(cc4[i]);
+
+  lcd_send_cmd(0x40+32);
+  for (int i=0; i<8; i++) lcd_send_data(cc5[i]);
+
+  lcd_send_cmd(0x40+40);
+  for (int i=0; i<8; i++) lcd_send_data(cc6[i]);
+
+  lcd_send_cmd(0x40+48);
+  for (int i=0; i<8; i++) lcd_send_data(cc7[i]);
+
+  lcd_send_cmd(0x40+56);
+  for (int i=0; i<8; i++) lcd_send_data(cc8[i]);
+	
+	lcd_put_cur(1, 0);
+  lcd_send_data(0);  // at 0x40 (smiley)
+	lcd_put_cur(1, 2);
+  lcd_send_data(1);  // at 0x40+56 (nguoi)
+	lcd_put_cur(1, 4);
+  lcd_send_data(2);  // at 0x40+56 (mui ten)
+	lcd_put_cur(1, 6);
+  lcd_send_data(3);  // at 0x40+56 (+-)
+	lcd_put_cur(1, 8);
+  lcd_send_data(4);  // at 0x40+56 (+-)
+	lcd_put_cur(1, 10);
+  lcd_send_data(5);  // at 0x40+56 (+-)
+	lcd_put_cur(1, 12);
+  lcd_send_data(6);  // at 0x40+56 (+-)
+	lcd_put_cur(1, 12);
+  lcd_send_data(7);  // at 0x40+56 (+-)
+	HAL_Delay(10000);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-				lcd_clear();
+		lcd_clear();
 		lcd_put_cur(0,0);
 		lcd_send_string("DIEN TU SONG PHU");
+		HAL_Delay(2000);
+		lcd_put_cur(1,2);
+		lcd_send_string("CHAO CAC BAN!");
+		HAL_Delay(7000);
+                lcd_clear();
+		lcd_put_cur(0,2);
+		lcd_send_string("KENH YOUTUBE");
+		HAL_Delay(2000);
+		lcd_put_cur(1,1);
+		lcd_send_string("DAM ME DIEN TU");
+		HAL_Delay(7000);
+		 lcd_clear();
+		lcd_put_cur(0,1);
+		lcd_send_string("STM32F103C8T6");
+		HAL_Delay(2000);
+		lcd_put_cur(1,3);
+		lcd_send_string("TEST LCD I2C");
+		HAL_Delay(7000);
+		lcd_clear();
+		lcd_put_cur(0,3);
+		lcd_send_string("Thiet Ke");
+		HAL_Delay(2000);
+		lcd_put_cur(1,3);
+		lcd_send_string("Thanh Vinh");
+		HAL_Delay(7000);
+		lcd_clear();
+		lcd_put_cur(0,3);
+		lcd_send_string("ANH YEU EM");
+		lcd_put_cur(0, 1);
+		lcd_send_data(2); 
+		lcd_put_cur(0, 14);
+    lcd_send_data(4);
+		lcd_put_cur(1,3);
+		lcd_send_string("I LOVE YOU ");
+		lcd_put_cur(1, 1);
+    lcd_send_data(4); 
+		lcd_put_cur(1, 14);
+    lcd_send_data(4); 
+		HAL_Delay(200000);
+		lcd_clear();
+		
+		/*
+  lcd_send_data(0);  // at 0x40 (smiley)
+	lcd_put_cur(1, 2);
+  lcd_send_data(1);  // at 0x40+56 (nguoi)
+	lcd_put_cur(1, 4);
+  lcd_send_data(2);  // at 0x40+56 (mui ten)
+	lcd_put_cur(1, 6);
+  lcd_send_data(3);  // at 0x40+56 (+-)
+	lcd_put_cur(1, 8);
+  lcd_send_data(4);  // at 0x40+56 (+-)
+	lcd_put_cur(1, 10);
+  lcd_send_data(5);  // at 0x40+56 (+-)
+	lcd_put_cur(1, 12);
+  lcd_send_data(6);  // at 0x40+56 (+-)
+	lcd_put_cur(1, 12);
+  lcd_send_data(7);  // at 0x40+56 (+-)
+	HAL_Delay(10000);
+	lcd_clear();*/
+
 
     /* USER CODE BEGIN 3 */
   }
@@ -141,7 +237,6 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-
   /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
@@ -192,55 +287,18 @@ static void MX_I2C1_Init(void)
 }
 
 /**
-  * @brief USART1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART1_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART1_Init 0 */
-
-  /* USER CODE END USART1_Init 0 */
-
-  /* USER CODE BEGIN USART1_Init 1 */
-
-  /* USER CODE END USART1_Init 1 */
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART1_Init 2 */
-
-  /* USER CODE END USART1_Init 2 */
-
-}
-
-/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
   */
 static void MX_GPIO_Init(void)
 {
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -275,3 +333,5 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
