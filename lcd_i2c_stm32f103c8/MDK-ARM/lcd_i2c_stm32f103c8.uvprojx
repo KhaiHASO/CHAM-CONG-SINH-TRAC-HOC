@@ -398,11 +398,6 @@
               <FilePath>..\Core\Src\i2c-lcd.c</FilePath>
             </File>
             <File>
-              <FileName>finger.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\finger.c</FilePath>
-            </File>
-            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/main.c</FilePath>
@@ -532,7 +527,12 @@
             <File>
               <FileName>finger.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\finger.h</FilePath>
+              <FilePath>..\Core\Inc\finger.h</FilePath>
+            </File>
+            <File>
+              <FileName>finger.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\finger.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -44,3 +44,4 @@ lcd_i2c_stm32f103c8\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/q
 lcd_i2c_stm32f103c8\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 lcd_i2c_stm32f103c8\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/i2c-lcd.h
+lcd_i2c_stm32f103c8\main.o: ../Core/Inc/finger.h

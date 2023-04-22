@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "i2c-lcd.h"
+#include "finger.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -143,6 +144,9 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+		lcd_clear();
+		lcd_put_cur(0,0);
+		lcd_send_string("TEST CAM BIEN ");
 
     /* USER CODE BEGIN 3 */
   }
