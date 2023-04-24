@@ -22,6 +22,7 @@
 #include "i2c-lcd.h"
 #include "finger.h"
 #include <stdbool.h> 
+#include <stdio.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -68,7 +69,6 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
@@ -76,37 +76,72 @@ static void MX_USART1_UART_Init(void);
   * @retval int
   */
 
+
+
+void add_fingerprint(UART_HandleTypeDef *huart, uint8_t ID) {
+  // Step 1: Collect fingerprint data
+  int result = collect_finger(huart);
+  if (result != 0x00) {
+    // Error occurred while collecting fingerprint data
+    sendlcd("Collecting failed");
+    return;
+  }
+
+  // Step 2: Convert fingerprint image to template
+  result = img2tz(0x01);
+  if (result != 0x00) {
+    // Error occurred while converting fingerprint image to template
+    sendlcd("image failed");
+    return;
+  }
+
+  // Step 3: Store the fingerprint template in the specified ID
+  result = store(ID);
+  if (result != 0x00) {
+    // Error occurred while storing the fingerprint template
+    sendlcd("Storing failed");
+    return;
+  }
+
+  // Successfully added fingerprint
+  sendlcd("Successfully");
+}
+
+int verify_fingerprint(void) {
+  int result = search();
+  if (result == 0) {
+    sendlcd("Not found");
+    HAL_Delay(1000);
+    return 0;
+  }
+  result = match();
+  if (result == 0) {
+    sendlcd("Incorrect");
+    HAL_Delay(1000);
+    return 0;
+  }
+  sendlcd("Complete");
+  HAL_Delay(1000);
+  return 1;
+}
+
+
+
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_USART1_UART_Init();
 	
-  /* USER CODE BEGIN 2 */
-	testfinger();
-  /* USER CODE END 2 */
+  lcd_init(); // Kh?i t?o màn hình LCD
 
+  /* S? d?ng các hàm d? test module vân tay */
+  sendlcd("Start");
+	add_fingerprint(&huart1,1);
+	verify_fingerprint();
 }
 
 /**

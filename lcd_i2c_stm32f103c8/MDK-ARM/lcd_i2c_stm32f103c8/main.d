@@ -29,3 +29,5 @@ lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pw
 lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/i2c-lcd.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/finger.h
+lcd_i2c_stm32f103c8\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+lcd_i2c_stm32f103c8\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

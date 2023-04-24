@@ -25,7 +25,7 @@ int store(uint8_t ID);
 int search(void);
 int search1(void);
 int empty(void);
-void testfinger();
+void sendlcd(char *str);
 
 
 #endif /* FINGER_H */

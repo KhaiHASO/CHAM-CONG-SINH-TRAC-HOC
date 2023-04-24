@@ -12,179 +12,119 @@
 #include "i2c-lcd.h"
 
 #define FINGER_BUFFER_LENGTH 64
+#define RECEIVE_TIMEOUT 500 // receive timeout in milliseconds
+#define UART_COMMAND_LENGTH 12
 extern UART_HandleTypeDef huart1;
-
 uint8_t Finger_Buffer[FINGER_BUFFER_LENGTH];
+uint8_t fingerID;
 
-#define RECEIVE_TIMEOUT 1000 // th?i gian ch? nh?n d? li?u
-
-uint8_t pID;
-
+// Receives a message from the fingerprint sensor
 uint8_t receive_finger(UART_HandleTypeDef *huart, uint8_t len) {
-  uint8_t p, D[20];
+  uint8_t data[FINGER_BUFFER_LENGTH];
+  uint8_t p;
   int i = 0;
   while (i < len) {
-    HAL_UART_Receive(huart, &D[i], 1, 1000); // nh?n m?t byte trong 1 giây
+    HAL_UART_Receive(huart, &data[i], 1, RECEIVE_TIMEOUT); // receive 1 byte within the timeout
     i++;
   }
-  p = D[len - 3];
+  p = data[len - 3];
   return p;
 }
 
+// Receives a message for fingerprint matching
 uint8_t receive_finger_match(UART_HandleTypeDef *huart, uint8_t len) {
-  uint8_t p, D[20];
+  uint8_t data[FINGER_BUFFER_LENGTH];
+  uint8_t p;
   int i = 0;
   while (i < len) {
-    HAL_UART_Receive(huart, &D[i], 1, 1000); // nh?n m?t byte trong 1 giây
+    HAL_UART_Receive(huart, &data[i], 1, RECEIVE_TIMEOUT); // receive 1 byte within the timeout
     i++;
   }
-  p = D[len - 5];
+  p = data[len - 5];
   return p;
 }
 
+// Receives a message for fingerprint search
 uint8_t receive_finger_search(UART_HandleTypeDef *huart, uint8_t len) {
-  uint8_t p, D[20];
+  uint8_t data[FINGER_BUFFER_LENGTH];
+  uint8_t p;
   int i = 0;
   while (i < len) {
-    HAL_UART_Receive(huart, &D[i], 1, 1000); // nh?n m?t byte trong 1 giây
+    HAL_UART_Receive(huart, &data[i], 1, RECEIVE_TIMEOUT); // receive 1 byte within the timeout
     i++;
   }
-  p = D[len - 7];
-  pID = D[11];
+  p = data[len - 7];
+  fingerID = data[11];
   return p;
 }
 
+// Collects fingerprint data
 int collect_finger(UART_HandleTypeDef *huart) {
   uint8_t buffer[] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x03, 0x01, 0x00, 0x05};
-  HAL_UART_Transmit(huart, buffer, sizeof(buffer), 1000); // truy?n d? li?u trong 1 giây
+  HAL_UART_Transmit(huart, buffer, sizeof(buffer), RECEIVE_TIMEOUT); // transmit data within the timeout
   return receive_finger(huart, 12);
 }
 
+// Converts fingerprint image to template
 int img2tz(uint8_t local) {
   int sum = 0x00;
   sum = local + 0x07;
   uint8_t buffer[] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x04, 0x02, local, 0x00, sum};
-  HAL_UART_Transmit(&huart1, buffer, sizeof(buffer), 1000);
+  HAL_UART_Transmit(&huart1, buffer, sizeof(buffer), RECEIVE_TIMEOUT);
   return receive_finger(&huart1, 12);
 }
 
-int match(void) {
-  uint8_t buffer[] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x03, 0x03, 0x00, 0x07};
-  HAL_UART_Transmit(&huart1, buffer, sizeof(buffer), 1000);
-  return receive_finger_match(&huart1, 14);
+int match(void)
+{
+  uint8_t data[14] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x03, 0x03, 0x00, 0x07};
+  HAL_UART_Transmit(&huart1, data, 12, 100);
+  return receive_finger_match(&huart1,14);
 }
 
-int regmodel(void) {
-  uint8_t buffer[] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x03, 0x05, 0x00, 0x09};
-  HAL_UART_Transmit(&huart1, buffer, sizeof(buffer), 1000);
-  return receive_finger(&huart1, 12);
+int regmodel(void)
+{
+  uint8_t data[12] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x03, 0x05, 0x00, 0x09};
+  HAL_UART_Transmit(&huart1, data, 12, 100);
+  return receive_finger(&huart1,12);
 }
 
-int store(uint8_t ID) {
+int store(uint8_t ID)
+{
   uint8_t sum1 = 0x0E + ID;
-  uint8_t buffer[] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x06, 0x06, 0x01, 0x00, ID, 0x00, sum1};
-  HAL_UART_Transmit(&huart1, buffer, sizeof(buffer), 1000);
-  return receive_finger(&huart1, 12);
+  uint8_t data[14] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x06, 0x06, 0x01, ID, 0x00, sum1};
+  HAL_UART_Transmit(&huart1, data, 14, 100);
+  return receive_finger(&huart1,12);
 }
 
-int search(void) {
-  uint8_t buffer[] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x08, 0x04, 0x01, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x0F};
-  HAL_UART_Transmit(&huart1, buffer, sizeof(buffer), 1000);
-  return receive_finger_search(&huart1, 16);
+int search(void)
+{
+  uint8_t data[17] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x08, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x0D, 0x01};
+  HAL_UART_Transmit(&huart1, data, 17, 100);
+  return receive_finger_search(&huart1,16);
 }
 
-int search1(void) {
-  uint8_t buffer[] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x08, 0x04, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x0F};
-  HAL_UART_Transmit(&huart1, buffer, sizeof(buffer), 1000);
-  return receive_finger_search(&huart1, 16);
+int search1(void)
+{
+  uint8_t data[17] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x08, 0x04, 0x01, 0x00, 0x00, 0x01, 0x00, 0x0F, 0x00};
+  HAL_UART_Transmit(&huart1, data, 17, 100);
+  return receive_finger_search(&huart1,16);
 }
 
 int empty(void)
-{		
-   uint8_t buffer[] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x03, 0x0D, 0x00, 0x11};
-   HAL_UART_Transmit(&huart1, buffer, sizeof(buffer), 1000); // truy?n d? li?u trong 1 giây
-   return receive_finger(&huart1, 12);
-}
-
-void testfinger()
 {
-	bool FINGER_OK = false; 
-	  // Ch? c?m bi?n vân tay k?t n?i
-  while (collect_finger(&huart1) != FINGER_OK)
-  {
-    lcd_clear();
-    lcd_put_cur(0, 0);
-    lcd_send_string("Sensor not found");
-    HAL_Delay(1000);
-  }
-
-  // Ch? ngu?i dùng d?t ngón tay lên c?m bi?n
-  while (img2tz(1) != FINGER_OK)
-  {
-    lcd_clear();
-    lcd_put_cur(0, 0);
-    lcd_send_string("Place finger");
-    HAL_Delay(1000);
-  }
-
-  // Luu c?m bi?n vân tay v?i ID = 1
-  if (store(1) == FINGER_OK)
-  {
-    lcd_clear();
-    lcd_put_cur(0, 0);
-    lcd_send_string("Finger stored");
-    HAL_Delay(1000);
-  }
-  else
-  {
-    lcd_clear();
-    lcd_put_cur(0, 0);
-    lcd_send_string("Error storing");
-    HAL_Delay(1000);
-  }
-
-  // Ch? ngu?i dùng d?t ngón tay lên c?m bi?n d? ki?m tra kh?p
-  while (img2tz(2) != FINGER_OK)
-  {
-    lcd_clear();
-    lcd_put_cur(0, 0);
-    lcd_send_string("Place finger");
-    HAL_Delay(1000);
-  }
-
-  // Tìm ki?m c?m bi?n vân tay v?i ID = 1
-  if (search() == FINGER_OK && pID == 1)
-  {
-    lcd_clear();
-    lcd_put_cur(0, 0);
-    lcd_send_string("Finger matched");
-    HAL_Delay(1000);
-  }
-  else
-  {
-    lcd_clear();
-    lcd_put_cur(0, 0);
-    lcd_send_string("Finger not found");
-    HAL_Delay(1000);
-  }
-
-  // Xóa c?m bi?n vân tay v?i ID = 1
-  if (empty() == FINGER_OK)
-  {
-    lcd_clear();
-    lcd_put_cur(0, 0);
-    lcd_send_string("Finger removed");
-    HAL_Delay(1000);
-  }
-  else
-  {
-    lcd_clear();
-    lcd_put_cur(0, 0);
-    lcd_send_string("Error removing");
-    HAL_Delay(1000);
-  }
-
+  uint8_t data[12] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x03, 0x0D, 0x00, 0x11};
+  HAL_UART_Transmit(&huart1, data, 12, 100);
+  return receive_finger(&huart1,12);
 }
+
+void sendlcd(char *str)
+{
+	lcd_clear();
+  lcd_put_cur(0, 0);
+  lcd_send_string(str);
+}
+
+
 
 
 

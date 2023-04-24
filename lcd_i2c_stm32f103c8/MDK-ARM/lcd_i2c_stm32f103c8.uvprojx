@@ -422,6 +422,11 @@
               <FileType>1</FileType>
               <FilePath>..\Core\Src\finger.c</FilePath>
             </File>
+            <File>
+              <FileName>i2c-lcd.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\Inc\i2c-lcd.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
