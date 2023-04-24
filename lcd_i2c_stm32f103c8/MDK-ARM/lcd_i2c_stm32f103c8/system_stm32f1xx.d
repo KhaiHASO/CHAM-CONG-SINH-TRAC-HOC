@@ -25,3 +25,4 @@ lcd_i2c_stm32f103c8\system_stm32f1xx.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm3
 lcd_i2c_stm32f103c8\system_stm32f1xx.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 lcd_i2c_stm32f103c8\system_stm32f1xx.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h
 lcd_i2c_stm32f103c8\system_stm32f1xx.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
+lcd_i2c_stm32f103c8\system_stm32f1xx.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
