@@ -12,7 +12,7 @@
 #include "i2c-lcd.h"
 
 #define FINGER_BUFFER_LENGTH 64
-#define RECEIVE_TIMEOUT 500 // receive timeout in milliseconds
+#define RECEIVE_TIMEOUT 500// receive timeout in milliseconds
 #define UART_COMMAND_LENGTH 12
 extern UART_HandleTypeDef huart1;
 uint8_t Finger_Buffer[FINGER_BUFFER_LENGTH];
@@ -123,7 +123,62 @@ void sendlcd(char *str)
   lcd_put_cur(0, 0);
   lcd_send_string(str);
 }
+//**********************CAC HAM SU DUNG THUC TE*********************************
+//**********************CAC HAM SU DUNG THUC TE*********************************
+//**********************CAC HAM SU DUNG THUC TE*********************************
+//**********************CAC HAM SU DUNG THUC TE*********************************
+//**********************CAC HAM SU DUNG THUC TE*********************************
+//**********************CAC HAM SU DUNG THUC TE*********************************
+//**********************CAC HAM SU DUNG THUC TE*********************************
+void add_fingerprint(UART_HandleTypeDef *huart, uint8_t ID) {
+  // Step 1: Collect fingerprint data
+  int result = collect_finger(huart);
+  if (result != 0x00) {
+    // Error occurred while collecting fingerprint data
+    sendlcd("Collecting failed");
+    return;
+  }
+	sendlcd("Collecting OK");
 
+  // Step 2: Convert fingerprint image to template
+  result = img2tz(0x01);
+  if (result != 0x00) {
+    // Error occurred while converting fingerprint image to template
+    sendlcd("image failed");
+    return;
+  }
+	sendlcd("image OK");
+
+  // Step 3: Store the fingerprint template in the specified ID
+  result = store(ID);
+  if (result != 0x00) {
+    // Error occurred while storing the fingerprint template
+    sendlcd("Storing failed");
+    return;
+  }
+	sendlcd("Storing OK");
+
+  // Successfully added fingerprint
+  sendlcd("Successfully");
+}
+
+int verify_fingerprint(void) {
+  int result = search();
+  if (result == 0) {
+    sendlcd("Not found");
+    HAL_Delay(1000);
+    return 0;
+  }
+  result = match();
+  if (result == 0) {
+    sendlcd("Incorrect");
+    HAL_Delay(1000);
+    return 0;
+  }
+  sendlcd("Complete");
+  HAL_Delay(1000);
+  return 1;
+}
 
 
 

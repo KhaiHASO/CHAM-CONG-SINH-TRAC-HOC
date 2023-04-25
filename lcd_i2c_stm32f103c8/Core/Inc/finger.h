@@ -26,6 +26,7 @@ int search(void);
 int search1(void);
 int empty(void);
 void sendlcd(char *str);
-
+void add_fingerprint(UART_HandleTypeDef *huart, uint8_t ID);
+int verify_fingerprint(void);
 
 #endif /* FINGER_H */
