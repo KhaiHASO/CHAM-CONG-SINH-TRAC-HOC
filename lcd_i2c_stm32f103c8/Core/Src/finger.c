@@ -91,7 +91,7 @@ int regmodel(void)
 int store(uint8_t ID)
 {
   uint8_t sum1 = 0x0E + ID;
-  uint8_t data[14] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x06, 0x06, 0x01, ID, 0x00, sum1};
+  uint8_t data[15] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x06, 0x06, 0x01,0x00 ,ID, 0x00, sum1};
   HAL_UART_Transmit(&huart1, data, 14, 100);
   return receive_finger(&huart1,12);
 }
@@ -105,7 +105,7 @@ int search(void)
 
 int search1(void)
 {
-  uint8_t data[17] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x08, 0x04, 0x01, 0x00, 0x00, 0x01, 0x00, 0x0F, 0x00};
+  uint8_t data[17] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x08, 0x04, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x0F};
   HAL_UART_Transmit(&huart1, data, 17, 100);
   return receive_finger_search(&huart1,16);
 }
@@ -117,12 +117,6 @@ int empty(void)
   return receive_finger(&huart1,12);
 }
 
-void sendlcd(char *str)
-{
-	lcd_clear();
-  lcd_put_cur(0, 0);
-  lcd_send_string(str);
-}
 //**********************CAC HAM SU DUNG THUC TE*********************************
 //**********************CAC HAM SU DUNG THUC TE*********************************
 //**********************CAC HAM SU DUNG THUC TE*********************************

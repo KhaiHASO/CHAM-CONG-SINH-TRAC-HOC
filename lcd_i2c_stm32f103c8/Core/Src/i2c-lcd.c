@@ -2,6 +2,7 @@
 /** Put this in the src folder **/
 
 #include "i2c-lcd.h"
+#include "string.h"
 extern I2C_HandleTypeDef hi2c1;  // change your handler here accordingly
 
 #define SLAVE_ADDRESS_LCD 0x4E // change this according to ur setup
@@ -88,4 +89,22 @@ void lcd_send_string (char *str)
 	while (*str) lcd_send_data (*str++);
 }
 
-
+///// các hàm su dung thuong xuyen
+void sendlcd(char *str) {
+    lcd_clear();
+    int len = strlen(str);
+    int row = 0;
+    int col = 0;
+    for (int i = 0; i < len; i++) {
+        lcd_put_cur(row, col);
+        lcd_send_data(str[i]);
+        col++;
+        if (col == 16) {
+            col = 0;
+            row++;
+            if (row == 2) {
+                break;
+            }
+        }
+    }
+}
