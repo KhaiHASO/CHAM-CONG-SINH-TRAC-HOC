@@ -22,6 +22,8 @@ lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_ex
 lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h
 lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma_ex.h
 lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_cortex.h
+lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc.h
+lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc_ex.h
 lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h
@@ -32,3 +34,4 @@ lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_ti
 lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/i2c-lcd.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/buzz.h
+lcd_i2c_stm32f103c8\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

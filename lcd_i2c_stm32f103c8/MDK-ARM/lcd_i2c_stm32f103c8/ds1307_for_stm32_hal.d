@@ -23,6 +23,8 @@ lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/
 lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h
 lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma_ex.h
 lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_cortex.h
+lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc.h
+lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc_ex.h
 lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h
