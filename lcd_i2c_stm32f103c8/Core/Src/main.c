@@ -26,6 +26,8 @@
 #include "i2c-lcd.h"
 #include "buzz.h"
 #include <stdio.h>
+#include "joystick.h"
+#include "finger.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -65,8 +67,7 @@ char cc5[] = {0x00, 0x00, 0x0A, 0x15, 0x11, 0x0E, 0x04, 0x00};  // Heart
 char cc6[] = {0x00, 0x0E, 0x11, 0x11, 0x11, 0x0A, 0x1B, 0x00};  // omega
 char cc7[] = {0x0E, 0x10, 0x17, 0x12, 0x12, 0x12, 0x10, 0x0E};  // CT
 char cc8[] = {0x04, 0x04, 0x1F, 0x04, 0x04, 0x00, 0x1F, 0x00};  // +-
-uint32_t joystick_1, joystick_2, value[2];
-uint8_t button;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -86,15 +87,7 @@ static void MX_ADC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint32_t MAP(uint32_t au32_IN, uint32_t au32_INmin, uint32_t au32_INmax, uint32_t au32_OUTmin, uint32_t au32_OUTmax)
-{
-	return ((((au32_IN - au32_INmin)*(au32_OUTmax - au32_OUTmin))/(au32_INmax - au32_INmin)) + au32_OUTmin);
-}
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-	joystick_1 = MAP(value[0], 0, 4096, 0, 100); //2^12 bit
-	joystick_2 = MAP(value[1], 0, 4096, 0, 100); // = 4096
-}
 /* USER CODE END 0 */
 
 /**
@@ -135,32 +128,51 @@ int main(void)
   MX_ADC1_Init();
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
-	//HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2); 
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)value, 2);
-	sendlcd("test joy stick");
-	/*  int joystick_X = MAP(value[0], 0, 4096, 0, 100); // Ð?c giá tr? c?a joystick_1 default 49, left 98% right 0%
-  int joystick_Y = MAP(value[1], 0, 4096, 0, 100); // Ð?c giá tr? c?a joystick_2 default 49, up 98% down 0%
-  
-  char str_joystick[20]; // Khai báo m?t m?ng ký t? d? luu giá tr? chu?i char c?a joystick_1 và joystick_2
-  sprintf(str_joystick, "Joystick 1: %d%%\nJoystick 2: %d%%", joystick_1, joystick_2); // Chuy?n d?i giá tr? c?a joystick_1 và joystick_2 thành chu?i ký t?
-  
-  sendlcd(str_joystick); // Hi?n th? giá tr? c?a joystick_1 và joystick_2 lên màn hình LCD
-  
-  HAL_Delay(100); // Ch? 100ms d? d?c l?i giá tr? c?a joystick*/
+	joystick_init(&hadc1);
 	
+
+	//verify_fingerprint();
+	
+	/*
+	while(1)
+    {
+        
+        }
+    }
+		*/
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	sendlcd("FINGER");
   while (1)
-  {
+{
     /* USER CODE END WHILE */
-
+    uint8_t joystick_position = get_joystick_position();
+    switch(joystick_position) {
+        case 1:
+            beep(100, 1); // phát ra âm thanh v?i t?n s? 1000Hz trong 1 giây
+				sendlcd("Dat cu vao");
+            while(collect_finger() != 0x00)	
+										{	
+											collect_finger();														
+										}
+            beep(200, 2);	
+            break;
+        case 2:
+            beep(100, 2); // phát ra âm thanh v?i t?n s? 1500Hz trong 1 giây
+				
+            break;
+        case 3:
+            beep(100, 3); // phát ra âm thanh v?i t?n s? 2000Hz trong 1 giây
+            break;
+        default:
+            break;
+    }
     /* USER CODE BEGIN 3 */
-	}
-  
-  /* USER CODE END 3 */
+} // thêm dòng này vào d? dóng while(1)
+/* USER CODE END 3 */
 }
 
 /**
@@ -534,7 +546,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : PA4 */
   GPIO_InitStruct.Pin = GPIO_PIN_4;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PB0 */

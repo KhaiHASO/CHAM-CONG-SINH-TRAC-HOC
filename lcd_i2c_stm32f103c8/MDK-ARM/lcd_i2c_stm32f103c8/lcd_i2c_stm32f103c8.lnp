@@ -4,6 +4,7 @@
 "lcd_i2c_stm32f103c8\finger.o"
 "lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o"
 "lcd_i2c_stm32f103c8\buzz.o"
+"lcd_i2c_stm32f103c8\joystick.o"
 "lcd_i2c_stm32f103c8\main.o"
 "lcd_i2c_stm32f103c8\stm32f1xx_it.o"
 "lcd_i2c_stm32f103c8\stm32f1xx_hal_msp.o"
@@ -26,6 +27,13 @@
 "lcd_i2c_stm32f103c8\stm32f1xx_hal_tim_ex.o"
 "lcd_i2c_stm32f103c8\stm32f1xx_hal_uart.o"
 "lcd_i2c_stm32f103c8\system_stm32f1xx.o"
+"lcd_i2c_stm32f103c8\user_diskio.o"
+"lcd_i2c_stm32f103c8\fatfs.o"
+"lcd_i2c_stm32f103c8\diskio.o"
+"lcd_i2c_stm32f103c8\ff.o"
+"lcd_i2c_stm32f103c8\ff_gen_drv.o"
+"lcd_i2c_stm32f103c8\syscall.o"
+"lcd_i2c_stm32f103c8\ccsbcs.o"
 --library_type=microlib --strict --scatter "lcd_i2c_stm32f103c8\lcd_i2c_stm32f103c8.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

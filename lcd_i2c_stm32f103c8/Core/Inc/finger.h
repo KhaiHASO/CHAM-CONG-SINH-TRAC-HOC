@@ -17,7 +17,7 @@
 #define FINGER_NACK_FAIL 0x03
 
 extern UART_HandleTypeDef huart1;
-int collect_finger(UART_HandleTypeDef *huart);
+int collect_finger(void);
 int img2tz(uint8_t local);
 int match(void);
 int regmodel(void);
@@ -25,7 +25,7 @@ int store(uint8_t ID);
 int search(void);
 int search1(void);
 int empty(void);
-void add_fingerprint(UART_HandleTypeDef *huart, uint8_t ID);
-int verify_fingerprint(void);
+void save_fingerprint(uint8_t address);
+uint8_t check_fingerprint_exists();
 
 #endif /* FINGER_H */
