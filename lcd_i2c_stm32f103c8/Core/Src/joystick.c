@@ -51,5 +51,22 @@ char* get_joystick_position_string(void)
     sprintf(result, "Joystick X: %lu, Y: %lu", (unsigned long)joystick_X, (unsigned long)joystick_Y);
     return result; // trả về chuỗi kết quả
 }
-
+/* uint8_t joystick_position = get_joystick_position();
+    switch(joystick_position) {
+        case 1:
+            beep(100, 1); // phát ra âm thanh v?i t?n s? 1000Hz trong 1 giây
+						//HAL_UART_Transmit(&huart1, (uint8_t *)"Hello, world!", 13, 300);
+				
+				
+            break;
+        case 2:
+            beep(100, 2); // phát ra âm thanh v?i t?n s? 1500Hz trong 1 giây
+				
+            break;
+        case 3:
+            beep(100, 3); // phát ra âm thanh v?i t?n s? 2000Hz trong 1 giây
+            break;
+        default:
+            break;
+    }*/
 

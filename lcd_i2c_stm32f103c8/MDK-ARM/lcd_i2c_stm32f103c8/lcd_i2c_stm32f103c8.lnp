@@ -1,10 +1,10 @@
 --cpu Cortex-M3
 "lcd_i2c_stm32f103c8\startup_stm32f103xb.o"
 "lcd_i2c_stm32f103c8\i2c-lcd.o"
-"lcd_i2c_stm32f103c8\finger.o"
 "lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o"
 "lcd_i2c_stm32f103c8\buzz.o"
 "lcd_i2c_stm32f103c8\joystick.o"
+"lcd_i2c_stm32f103c8\finger.o"
 "lcd_i2c_stm32f103c8\main.o"
 "lcd_i2c_stm32f103c8\stm32f1xx_it.o"
 "lcd_i2c_stm32f103c8\stm32f1xx_hal_msp.o"

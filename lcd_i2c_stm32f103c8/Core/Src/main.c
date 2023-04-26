@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include "joystick.h"
 #include "finger.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -131,48 +132,28 @@ int main(void)
 	joystick_init(&hadc1);
 	
 
-	//verify_fingerprint();
-	
-	/*
-	while(1)
-    {
-        
-        }
-    }
-		*/
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	sendlcd("FINGER");
+	sendlcd("collect finger");
+	uint8_t result;
+
+// L?y ?nh vân tay
+result = collect_finger();
+if (result == 0x00) {
+    sendlcd("thanhcong");
+} else {
+    // X? lý l?i tùy theo giá tr? result
+	sendlcd("thanhthu");
+}
   while (1)
-{
+	{
     /* USER CODE END WHILE */
-    uint8_t joystick_position = get_joystick_position();
-    switch(joystick_position) {
-        case 1:
-            beep(100, 1); // phát ra âm thanh v?i t?n s? 1000Hz trong 1 giây
-				sendlcd("Dat cu vao");
-            while(collect_finger() != 0x00)	
-										{	
-											collect_finger();														
-										}
-            beep(200, 2);	
-            break;
-        case 2:
-            beep(100, 2); // phát ra âm thanh v?i t?n s? 1500Hz trong 1 giây
-				
-            break;
-        case 3:
-            beep(100, 3); // phát ra âm thanh v?i t?n s? 2000Hz trong 1 giây
-            break;
-        default:
-            break;
-    }
+
     /* USER CODE BEGIN 3 */
-} // thêm dòng này vào d? dóng while(1)
-/* USER CODE END 3 */
+	} // thêm dòng này vào d? dóng while(1)
+  /* USER CODE END 3 */
 }
 
 /**
@@ -458,7 +439,7 @@ static void MX_USART1_UART_Init(void)
 
   /* USER CODE END USART1_Init 1 */
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
+  huart1.Init.BaudRate = 57600;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;

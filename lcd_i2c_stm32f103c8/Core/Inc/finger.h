@@ -27,5 +27,6 @@ int search1(void);
 int empty(void);
 void save_fingerprint(uint8_t address);
 uint8_t check_fingerprint_exists();
+uint8_t R308_ExecuteCommand(uint8_t instruction, uint8_t *data, uint16_t dataSize);
 
 #endif /* FINGER_H */
