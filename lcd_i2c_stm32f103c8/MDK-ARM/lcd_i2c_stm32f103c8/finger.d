@@ -1,4 +1,5 @@
 lcd_i2c_stm32f103c8\finger.o: ..\Core\Src\finger.c
+lcd_i2c_stm32f103c8\finger.o: ../Core/Inc/finger.h
 lcd_i2c_stm32f103c8\finger.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 lcd_i2c_stm32f103c8\finger.o: ../Core/Inc/stm32f1xx_hal_conf.h
 lcd_i2c_stm32f103c8\finger.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h
@@ -31,5 +32,6 @@ lcd_i2c_stm32f103c8\finger.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_
 lcd_i2c_stm32f103c8\finger.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 lcd_i2c_stm32f103c8\finger.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 lcd_i2c_stm32f103c8\finger.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
-lcd_i2c_stm32f103c8\finger.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-lcd_i2c_stm32f103c8\finger.o: ../Core/Inc/finger.h
+lcd_i2c_stm32f103c8\finger.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+lcd_i2c_stm32f103c8\finger.o: ../Core/Inc/i2c-lcd.h
+lcd_i2c_stm32f103c8\finger.o: ../Core/Inc/buzz.h

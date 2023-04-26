@@ -139,17 +139,27 @@ int main(void)
 	sendlcd("collect finger");
 	uint8_t result;
 
-// L?y ?nh vân tay
-result = collect_finger();
-if (result == 0x00) {
-    sendlcd("thanhcong");
-} else {
-    // X? lý l?i tùy theo giá tr? result
-	sendlcd("thanhthu");
-}
   while (1)
 	{
     /* USER CODE END WHILE */
+		uint8_t joystick_position = get_joystick_position();
+    switch(joystick_position) {
+        case 1:
+            beep(100, 1);
+				add_fingerprint(1);
+				sendlcd("LAY THANH CONG");
+				beep(50, 3);
+            break;
+        case 2:
+            beep(100, 2); 
+				beep(50, 3);
+            break;
+        case 3:
+            beep(100, 3); 
+            break;
+        default:
+            break;
+			}
 
     /* USER CODE BEGIN 3 */
 	} // thêm dòng này vào d? dóng while(1)

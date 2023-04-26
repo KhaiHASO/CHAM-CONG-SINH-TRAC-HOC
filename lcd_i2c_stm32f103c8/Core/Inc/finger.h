@@ -11,22 +11,21 @@
 #include "stm32f1xx_hal_flash_ex.h"
 #include "stm32f1xx_hal_uart.h"
 
-#define FINGER_ACK 0x00
-#define FINGER_NACK_RECV_ERR 0x01
-#define FINGER_NACK_NO_FINGER 0x02
-#define FINGER_NACK_FAIL 0x03
-
 extern UART_HandleTypeDef huart1;
+
+uint8_t receive_finger(uint8_t len);
+uint8_t receive_finger_match(uint8_t len);
+uint8_t receive_finger_search(uint8_t len);
 int collect_finger(void);
 int img2tz(uint8_t local);
 int match(void);
-int regmodel(void);
-int store(uint8_t ID);
-int search(void);
+uint8_t regmodel(void);
+uint8_t store(uint8_t ID);
+uint8_t search(void);
 int search1(void);
 int empty(void);
-void save_fingerprint(uint8_t address);
-uint8_t check_fingerprint_exists();
-uint8_t R308_ExecuteCommand(uint8_t instruction, uint8_t *data, uint16_t dataSize);
+int add_fingerprint(uint8_t ID);
+
+
 
 #endif /* FINGER_H */
