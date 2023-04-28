@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include "joystick.h"
 #include "finger.h"
+#include "string.h"
 
 /* USER CODE END Includes */
 
@@ -68,6 +69,8 @@ char cc5[] = {0x00, 0x00, 0x0A, 0x15, 0x11, 0x0E, 0x04, 0x00};  // Heart
 char cc6[] = {0x00, 0x0E, 0x11, 0x11, 0x11, 0x0A, 0x1B, 0x00};  // omega
 char cc7[] = {0x0E, 0x10, 0x17, 0x12, 0x12, 0x12, 0x10, 0x0E};  // CT
 char cc8[] = {0x04, 0x04, 0x1F, 0x04, 0x04, 0x00, 0x1F, 0x00};  // +-
+
+
 
 /* USER CODE END PV */
 
@@ -130,37 +133,44 @@ int main(void)
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 	joystick_init(&hadc1);
+	int ID=0;
 	
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	sendlcd("collect finger");
-	uint8_t result;
 
+
+			
   while (1)
 	{
     /* USER CODE END WHILE */
+			sendlcd("Chon chuc nang");
+		HAL_Delay(200);
 		uint8_t joystick_position = get_joystick_position();
     switch(joystick_position) {
         case 1:
-            beep(100, 1);
-				add_fingerprint(1);
-				sendlcd("LAY THANH CONG");
-				beep(50, 3);
-            break;
+					beep(100, 1);
+				addFinger(ID);
+				ID++;
+				beep(50, 4);
+				break;
         case 2:
             beep(100, 2); 
+				verify_fingerprint();
 				beep(50, 3);
             break;
         case 3:
             beep(100, 3); 
+				empty();
+				sendlcd("Xoa toan bo");
+				ID=0;
+				HAL_Delay(2000);
             break;
         default:
             break;
 			}
-
     /* USER CODE BEGIN 3 */
 	} // thêm dòng này vào d? dóng while(1)
   /* USER CODE END 3 */

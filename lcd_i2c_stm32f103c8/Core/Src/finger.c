@@ -12,6 +12,7 @@
 #include "i2c-lcd.h"
 #include "buzz.h"
 uint8_t pID;
+uint8_t tmp = 0xff;
 uint8_t receive_finger(uint8_t len)
 {
   uint8_t p, D[20];
@@ -70,21 +71,17 @@ int collect_finger(void)
 }
 
 int img2tz(uint8_t local)
-{
-  int sum = 0x00;
-  uint8_t tx_buf[12] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x04, 0x02, local, 0x00};
-  for (int i = 0; i < 12; i++)
-  {
-    sum += tx_buf[i];
-  }
-  tx_buf[11] = sum & 0xFF;
-
-  if (HAL_UART_Transmit(&huart1, tx_buf, 12, HAL_MAX_DELAY) != HAL_OK)
-  {
-    return -1;
-  }
-  return receive_finger(12);
+{ // ghi du lieu van tay vao bo nho dem local(local co the la: 0x01 vung 1, 0x02 vung 2)
+    int sum = 0x00;
+    sum = local + 0x07;
+    uint8_t tx_buf[13] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x04, 0x02, local, 0x00, sum};
+    HAL_StatusTypeDef status = HAL_UART_Transmit(&huart1, tx_buf, sizeof(tx_buf), HAL_MAX_DELAY);
+    if (status != HAL_OK) {
+        return -1; // l?i khi g?i d? li?u
+    }
+    return receive_finger(12);
 }
+
 
 int match(void)
 {
@@ -113,13 +110,13 @@ uint8_t store(uint8_t ID)
 
 uint8_t search(void)
 { // l?y mã vân tay t? flash ra d? so sánh v?i vân tay v?a nh?n trên b? d?m
-  uint8_t txData[] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x08, 0x04, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x0D};
+  uint8_t txData[] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x08, 0x04, 0x01, 0x00, 0x00, 0x00, 0xff, 0x01, 0x0D};
   HAL_UART_Transmit(&huart1, txData, sizeof(txData), HAL_MAX_DELAY);
   return receive_finger_search(16);
 }
 int search1(void)
 {
-    uint8_t txData[] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x08, 0x04, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x0D};
+    uint8_t txData[] = {0xEF, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x08, 0x04, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x0F};
     HAL_UART_Transmit(&huart1, txData, sizeof(txData), HAL_MAX_DELAY);
     return receive_finger_search(16);
 }
@@ -131,90 +128,101 @@ int empty(void)
     return receive_finger(12);
 }
 ///////hàm su dung thuc te ##################################################################################
-#define ADD_FINGER 1
-#define MATCH_TIMEOUT 5000 // Timeout cho vi?c ch? k?t qu? kh?p vân tay
-
 // Hàm thêm vân tay
-
-int add_fingerprint(uint8_t ID)
+int collectFinger(void)
 {
-    int ret = 0;
-    bool success = false;
-    
-    // Nh?p m?u vân tay
-    while (!success)
+  collect:
+  sendlcd("DAT TAY VAO");
+
+  while (collect_finger() != 0x00)
+  {
+    tmp = collect_finger();
+  }
+  sendlcd("COLLECT FINGER DONE");
+
+  tmp = 0xff;
+  while (tmp != 0x00)
+  {
+    tmp = img2tz(0x01);
+  }
+  sendlcd("IMG2TZ(0x01) DONE");
+
+  tmp = 0xff;
+  while (tmp != 0x00)
+  {
+    tmp = collect_finger();
+  }
+  sendlcd("COLLECT FINGER DONEee");
+
+  tmp = 0xff;
+  while (tmp != 0x00)
+  {
+    tmp = img2tz(0x02);
+  }
+  sendlcd("IMG2TZ(0x02) DONE");
+
+  tmp = 0xff;
+  while (tmp != 0x00)
+  {
+    tmp = match();
+    HAL_Delay(100);
+    if (tmp == 0x08 || (tmp == 0x01))
     {
-        ret = collect_finger();
-        if (ret != 0x00) {
-            return ret;
-        }
-        ret = img2tz(1);
-        if (ret != 0x00) {
-            return ret;
-        }
-        ret = regmodel();
-        if (ret != 0x00) {
-            return ret;
-        }
-        
-        // Xác minh m?u vân tay l?n 1
-        ret = search1();
-        if (ret == 0x00)
-        {
-            // Tìm th?y ID trùng kh?p trong flash
-            return -1;
-        }
-        else if (ret == 0x09)
-        {
-            // Không tìm th?y ID trong flash
-            success = true;
-        }
-        else
-        {
-            return ret;
-        }
+      sendlcd("LOI,LAM LAI");
+      HAL_Delay(1000);
+      goto collect;
     }
-    
-    success = false;
-    // Nh?p l?i m?u vân tay
-    while (!success)
-    {
-        ret = collect_finger();
-        if (ret != 0x00) {
-            return ret;
-        }
-        ret = img2tz(2);
-        if (ret != 0x00) {
-            return ret;
-        }
-        ret = regmodel();
-        if (ret != 0x00) {
-            return ret;
-        }
-        
-        // Xác minh m?u vân tay l?n 2
-        ret = search1();
-        if (ret == 0x00)
-        {
-            // Tìm th?y ID trùng kh?p trong flash
-            success = false;
-        }
-        else if (ret == 0x09)
-        {
-            // Không tìm th?y ID trong flash
-            success = true;
-        }
-        else
-        {
-            return ret;
-        }
-    }
-    
-    // Luu ID vào flash
-    ret = store(ID);
-    if (ret != 0x00) {
-        return ret;
-    }
-    
-    return 0;
+    sendlcdint(tmp);
+  }
+  sendlcd("MATCH DONE");
+
+  tmp = 0xff;
+  while (tmp != 0x00)
+  {
+    tmp = regmodel();
+    HAL_Delay(100);
+    sendlcdint(tmp);
+  }
+  sendlcd("REGMODEL DONE");
+	return 1;
 }
+void addFinger(int ID)
+{
+	collectFinger();
+  tmp = 0xff;
+	//pID = search();
+  while (tmp != 0x00)
+  {
+    tmp = store(ID);
+    HAL_Delay(100);
+    sendlcdint(tmp);
+  }
+  sendlcd("STORE DONE");
+  sendlcd("OK,DA LUU");
+  HAL_Delay(1000);
+  tmp = 0xff;
+}
+
+int verify_fingerprint() {
+		collectFinger();
+    // Search for fingerprint in database
+    uint16_t finger_id = search();
+    
+    // Check if fingerprint is in database
+    if (finger_id == 0x00) {
+        // Fingerprint match found
+			sendlcdint(pID);
+			HAL_Delay(2000);
+        return finger_id;
+			
+    } else {
+        // Fingerprint match not found
+			sendlcd("not found");
+			HAL_Delay(2000);
+        return -1;
+    }
+}
+
+
+
+

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 void joystick_init(ADC_HandleTypeDef* hadc);
-uint8_t get_joystick_position();
+uint8_t get_joystick_position(void);
 char* get_joystick_position_string(void);
 
 #endif /* __JOYSTICK_H */

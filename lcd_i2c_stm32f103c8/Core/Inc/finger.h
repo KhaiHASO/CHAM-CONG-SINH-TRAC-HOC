@@ -24,8 +24,6 @@ uint8_t store(uint8_t ID);
 uint8_t search(void);
 int search1(void);
 int empty(void);
-int add_fingerprint(uint8_t ID);
-
-
-
+void addFinger(int ID);
+int verify_fingerprint(void) ;
 #endif /* FINGER_H */
