@@ -52,3 +52,4 @@ lcd_i2c_stm32f103c8\main.o: ../Core/Inc/i2c-lcd.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/buzz.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/joystick.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/finger.h
+lcd_i2c_stm32f103c8\main.o: ../Core/Inc/ds1307_for_stm32_hal.h

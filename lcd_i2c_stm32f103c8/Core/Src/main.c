@@ -30,7 +30,7 @@
 #include "joystick.h"
 #include "finger.h"
 #include "string.h"
-
+#include "ds1307_for_stm32_hal.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -72,8 +72,13 @@ char cc6[] = {0x00, 0x0E, 0x11, 0x11, 0x11, 0x0A, 0x1B, 0x00};  // omega
 char cc7[] = {0x0E, 0x10, 0x17, 0x12, 0x12, 0x12, 0x10, 0x0E};  // CT
 char cc8[] = {0x04, 0x04, 0x1F, 0x04, 0x04, 0x00, 0x1F, 0x00};  // +-
 
-FATFS fs;
-FIL fil;
+	char functions[3][20] = {
+    "CHAM CONG",
+    "THEM VAN TAY",
+    "XOA TOAN BO"
+};
+
+int ID = 0;
 
 /* USER CODE END PV */
 
@@ -137,43 +142,63 @@ int main(void)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 	joystick_init(&hadc1);
-	/*
-	int ID=0;
-	
-	while (1)
-	{
-		sendlcd("Chon chuc nang");
-		HAL_Delay(200);
-		uint8_t joystick_position = get_joystick_position();
+
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1) {
+    // Hi?n th? ch?c nang hi?n t?i lên LCD
+    sendlcd(functions[ID]);
+        char* datetime_str = get_current_date_time(&hi2c2);
+        lcd_put_cur(1,0);
+				lcd_send_string(datetime_str);
+        // Gi?i phóng b? nh? dã c?p phát cho chu?i th?i gian
+        free(datetime_str);
+    
+    // Ð?i 200ms d? tránh d? tr? khi s? d?ng joystick
+    HAL_Delay(200);
+    
+    uint8_t joystick_position = get_joystick_position();
     switch(joystick_position) {
-        case 1:
-					beep(100, 1);
-				addFinger(ID);
-				ID++;
-				break;
-        case 2:
-            beep(100, 1); 
-				verify_fingerprint();
+        case 1: // ?n joystick d? ch?n ch?c nang
+            beep(100, 1);
+            switch (ID) {
+                case 0: // Ch?n ch?c nang CHAM CONG
+									beep(300, 1);
+                    // TODO: Tri?n khai ch?c nang CHAM CONG ? dây
+                    break;
+                case 1: // Ch?n ch?c nang THEM VAN TAY
+									beep(300, 1);
+                    // TODO: Tri?n khai ch?c nang THEM VAN TAY ? dây
+                    break;
+                case 2: // Ch?n ch?c nang XOA TOAN BO
+									beep(300, 1);
+                    // TODO: Tri?n khai ch?c nang XOA TOAN BO ? dây
+                    break;
+                default:
+                    break;
+            }
             break;
-        case 3:
-          beep(100, 1); 
-				deleteAllFinger();
-				ID=0;
-				HAL_Delay(2000);
+        case 2: // G?t trái d? chuy?n sang ch?c nang tru?c
+            beep(100, 1);
+            ID--;
+            if (ID < 0) {
+                ID = 2;
+            }
+            break;
+        case 3: // G?t ph?i d? chuy?n sang ch?c nang k? ti?p
+            beep(100, 1);
+            ID++;
+            if (ID > 2) {
+                ID = 0;
+            }
             break;
         default:
             break;
-			}
-	} 	HAL_Delay(500);
-  f_mount(&fs, "", 0);
-  f_open(&fil, "write.txt", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
-  f_lseek(&fil, fil.fsize);
-  f_puts("Hello from Nizar\n", &fil);
-  f_close(&fil);
-	*/
-
-	sendlcd("thu microusb");
-
+    }
+}
   /* USER CODE END 2 */
 
   /* Infinite loop */
