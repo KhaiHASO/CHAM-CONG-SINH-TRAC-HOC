@@ -35,5 +35,8 @@ lcd_i2c_stm32f103c8\ff.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.
 lcd_i2c_stm32f103c8\ff.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 lcd_i2c_stm32f103c8\ff.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 lcd_i2c_stm32f103c8\ff.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
+lcd_i2c_stm32f103c8\ff.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd.h
+lcd_i2c_stm32f103c8\ff.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usb.h
+lcd_i2c_stm32f103c8\ff.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h
 lcd_i2c_stm32f103c8\ff.o: ../Middlewares/Third_Party/FatFs/src/diskio.h
 lcd_i2c_stm32f103c8\ff.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h

@@ -13,6 +13,7 @@
 
 extern UART_HandleTypeDef huart1;
 
+
 uint8_t receive_finger(uint8_t len);
 uint8_t receive_finger_match(uint8_t len);
 uint8_t receive_finger_search(uint8_t len);
@@ -26,4 +27,5 @@ int search1(void);
 int empty(void);
 void addFinger(int ID);
 int verify_fingerprint(void) ;
+void deleteAllFinger(void);
 #endif /* FINGER_H */

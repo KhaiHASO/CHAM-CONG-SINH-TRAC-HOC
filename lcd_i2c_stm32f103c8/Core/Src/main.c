@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "fatfs.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -39,6 +40,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -70,7 +72,8 @@ char cc6[] = {0x00, 0x0E, 0x11, 0x11, 0x11, 0x0A, 0x1B, 0x00};  // omega
 char cc7[] = {0x0E, 0x10, 0x17, 0x12, 0x12, 0x12, 0x10, 0x0E};  // CT
 char cc8[] = {0x04, 0x04, 0x1F, 0x04, 0x04, 0x00, 0x1F, 0x00};  // +-
 
-
+FATFS fs;
+FIL fil;
 
 /* USER CODE END PV */
 
@@ -131,22 +134,15 @@ int main(void)
   MX_TIM2_Init();
   MX_ADC1_Init();
   MX_FATFS_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 	joystick_init(&hadc1);
+	/*
 	int ID=0;
 	
-
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-
-
-			
-  while (1)
+	while (1)
 	{
-    /* USER CODE END WHILE */
-			sendlcd("Chon chuc nang");
+		sendlcd("Chon chuc nang");
 		HAL_Delay(200);
 		uint8_t joystick_position = get_joystick_position();
     switch(joystick_position) {
@@ -154,25 +150,40 @@ int main(void)
 					beep(100, 1);
 				addFinger(ID);
 				ID++;
-				beep(50, 4);
 				break;
         case 2:
-            beep(100, 2); 
+            beep(100, 1); 
 				verify_fingerprint();
-				beep(50, 3);
             break;
         case 3:
-            beep(100, 3); 
-				empty();
-				sendlcd("Xoa toan bo");
+          beep(100, 1); 
+				deleteAllFinger();
 				ID=0;
 				HAL_Delay(2000);
             break;
         default:
             break;
 			}
+	} 	HAL_Delay(500);
+  f_mount(&fs, "", 0);
+  f_open(&fil, "write.txt", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
+  f_lseek(&fil, fil.fsize);
+  f_puts("Hello from Nizar\n", &fil);
+  f_close(&fil);
+	*/
+
+	sendlcd("thu microusb");
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
-	} // thêm dòng này vào d? dóng while(1)
+  }
   /* USER CODE END 3 */
 }
 
@@ -195,7 +206,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -210,12 +221,13 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_USB;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV4;
+  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();

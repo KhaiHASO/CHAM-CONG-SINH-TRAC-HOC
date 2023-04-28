@@ -32,6 +32,9 @@ lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_sp
 lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
+lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd.h
+lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usb.h
+lcd_i2c_stm32f103c8\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h
 lcd_i2c_stm32f103c8\main.o: ../FATFS/App/fatfs.h
 lcd_i2c_stm32f103c8\main.o: ../Middlewares/Third_Party/FatFs/src/ff.h
 lcd_i2c_stm32f103c8\main.o: ../Middlewares/Third_Party/FatFs/src/integer.h
@@ -39,9 +42,13 @@ lcd_i2c_stm32f103c8\main.o: ../FATFS/Target/ffconf.h
 lcd_i2c_stm32f103c8\main.o: ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h
 lcd_i2c_stm32f103c8\main.o: ../Middlewares/Third_Party/FatFs/src/diskio.h
 lcd_i2c_stm32f103c8\main.o: ../FATFS/Target/user_diskio.h
+lcd_i2c_stm32f103c8\main.o: ../USB_DEVICE/App/usb_device.h
+lcd_i2c_stm32f103c8\main.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h
+lcd_i2c_stm32f103c8\main.o: ../USB_DEVICE/Target/usbd_conf.h
+lcd_i2c_stm32f103c8\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+lcd_i2c_stm32f103c8\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+lcd_i2c_stm32f103c8\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/i2c-lcd.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/buzz.h
-lcd_i2c_stm32f103c8\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/joystick.h
-lcd_i2c_stm32f103c8\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/finger.h

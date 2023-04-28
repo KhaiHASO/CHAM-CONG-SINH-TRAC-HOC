@@ -33,6 +33,9 @@ lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/
 lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
+lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd.h
+lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usb.h
+lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h
 lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 lcd_i2c_stm32f103c8\ds1307_for_stm32_hal.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

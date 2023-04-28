@@ -133,6 +133,7 @@ int collectFinger(void)
 {
   collect:
   sendlcd("DAT TAY VAO");
+	beep(50,1);
 
   while (collect_finger() != 0x00)
   {
@@ -190,7 +191,6 @@ void addFinger(int ID)
 {
 	collectFinger();
   tmp = 0xff;
-	//pID = search();
   while (tmp != 0x00)
   {
     tmp = store(ID);
@@ -198,12 +198,14 @@ void addFinger(int ID)
     sendlcdint(tmp);
   }
   sendlcd("STORE DONE");
-  sendlcd("OK,DA LUU");
+	beep(50,2);
   HAL_Delay(1000);
   tmp = 0xff;
 }
 
-int verify_fingerprint() {
+int verify_fingerprint()
+	{
+
 		collectFinger();
     // Search for fingerprint in database
     uint16_t finger_id = search();
@@ -213,14 +215,23 @@ int verify_fingerprint() {
         // Fingerprint match found
 			sendlcdint(pID);
 			HAL_Delay(2000);
-        return finger_id;
+			beep(75,3);
+        return pID;
 			
     } else {
         // Fingerprint match not found
 			sendlcd("not found");
 			HAL_Delay(2000);
+			beep(500,2);
         return -1;
     }
+}
+void deleteAllFinger(void)
+{
+	empty();
+	beep(500,2);
+	sendlcd("Xoa toan bo");
+	
 }
 
 
