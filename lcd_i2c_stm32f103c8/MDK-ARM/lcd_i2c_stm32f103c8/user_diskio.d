@@ -38,6 +38,3 @@ lcd_i2c_stm32f103c8\user_diskio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx
 lcd_i2c_stm32f103c8\user_diskio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 lcd_i2c_stm32f103c8\user_diskio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 lcd_i2c_stm32f103c8\user_diskio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
-lcd_i2c_stm32f103c8\user_diskio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd.h
-lcd_i2c_stm32f103c8\user_diskio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usb.h
-lcd_i2c_stm32f103c8\user_diskio.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h

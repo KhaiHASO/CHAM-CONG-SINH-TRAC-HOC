@@ -19,8 +19,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "fatfs.h"
-#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -31,6 +29,8 @@
 #include "finger.h"
 #include "string.h"
 #include "ds1307_for_stm32_hal.h"
+
+#include "stdlib.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,8 +55,6 @@ DMA_HandleTypeDef hdma_adc1;
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
-SPI_HandleTypeDef hspi1;
-
 TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart1;
@@ -72,13 +70,17 @@ char cc6[] = {0x00, 0x0E, 0x11, 0x11, 0x11, 0x0A, 0x1B, 0x00};  // omega
 char cc7[] = {0x0E, 0x10, 0x17, 0x12, 0x12, 0x12, 0x10, 0x0E};  // CT
 char cc8[] = {0x04, 0x04, 0x1F, 0x04, 0x04, 0x00, 0x1F, 0x00};  // +-
 
-	char functions[3][20] = {
+	char functions[4][20] = {
     "CHAM CONG",
     "THEM VAN TAY",
-    "XOA TOAN BO"
+    "XOA TOAN BO",
+		"XEM GIO"
 };
+char* datetime_str;
 
-int ID = 0;
+int IDFunc = 0;
+int IDFinger = 0;
+
 
 /* USER CODE END PV */
 
@@ -90,7 +92,6 @@ static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_USART2_UART_Init(void);
-static void MX_SPI1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
@@ -99,7 +100,27 @@ static void MX_ADC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void xemgio(void)
+{
+	while(1)
+	{
+		if(get_joystick_position() ==0)
+		{
+			// Hi?n th? ch?c nang hi?n t?i lên LCD
+				sendlcd(functions[IDFunc]);
+         datetime_str= get_current_date_time(&hi2c2);
+        lcd_put_cur(1,0);
+				lcd_send_string(datetime_str);
+        // Gi?i phóng b? nh? dã c?p phát cho chu?i th?i gian
+        free(datetime_str);
+				HAL_Delay(1000);
+		}
+	    
+		else
+			break;
+	}
+	
+}
 /* USER CODE END 0 */
 
 /**
@@ -135,77 +156,68 @@ int main(void)
   MX_USART1_UART_Init();
   MX_I2C2_Init();
   MX_USART2_UART_Init();
-  MX_SPI1_Init();
   MX_TIM2_Init();
   MX_ADC1_Init();
-  MX_FATFS_Init();
-  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 	joystick_init(&hadc1);
+	/* USER CODE BEGIN PD */
 
+/* USER CODE END PD */
 
+  /* USER CODE BEGIN 2 */
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1) {
-    // Hi?n th? ch?c nang hi?n t?i lên LCD
-    sendlcd(functions[ID]);
-        char* datetime_str = get_current_date_time(&hi2c2);
-        lcd_put_cur(1,0);
-				lcd_send_string(datetime_str);
-        // Gi?i phóng b? nh? dã c?p phát cho chu?i th?i gian
-        free(datetime_str);
-    
-    // Ð?i 200ms d? tránh d? tr? khi s? d?ng joystick
-    HAL_Delay(200);
-    
-    uint8_t joystick_position = get_joystick_position();
-    switch(joystick_position) {
-        case 1: // ?n joystick d? ch?n ch?c nang
-            beep(100, 1);
-            switch (ID) {
-                case 0: // Ch?n ch?c nang CHAM CONG
-									beep(300, 1);
-                    // TODO: Tri?n khai ch?c nang CHAM CONG ? dây
-                    break;
-                case 1: // Ch?n ch?c nang THEM VAN TAY
-									beep(300, 1);
-                    // TODO: Tri?n khai ch?c nang THEM VAN TAY ? dây
-                    break;
-                case 2: // Ch?n ch?c nang XOA TOAN BO
-									beep(300, 1);
-                    // TODO: Tri?n khai ch?c nang XOA TOAN BO ? dây
-                    break;
-                default:
-                    break;
-            }
-            break;
-        case 2: // G?t trái d? chuy?n sang ch?c nang tru?c
-            beep(100, 1);
-            ID--;
-            if (ID < 0) {
-                ID = 2;
-            }
-            break;
-        case 3: // G?t ph?i d? chuy?n sang ch?c nang k? ti?p
-            beep(100, 1);
-            ID++;
-            if (ID > 2) {
-                ID = 0;
-            }
-            break;
-        default:
-            break;
-    }
-}
-  /* USER CODE END 2 */
+			while (1)
+			{
+				sendlcd(functions[IDFunc]); // hi?n th? ch?c nang hi?n t?i lên LCD
+				HAL_Delay(200);
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    /* USER CODE END WHILE */
+				uint8_t joystick_position = get_joystick_position();
+				switch (joystick_position) {
+					case 1: // Nh?n joystick d? ch?n ch?c nang
+						beep(100, 1);
+						switch (IDFunc) {
+							case 0: // Ch?n ch?c nang CH?M CÔNG
+								beep(300, 1);
+								verify_fingerprint();
+								break;
+							case 1: // Ch?n ch?c nang THÊM VÂN TAY
+								beep(300, 1);
+								addFinger(IDFinger);
+								IDFinger++;
+								break;
+							case 2: // Ch?n ch?c nang XÓA TOÀN B?
+								beep(300, 1);
+								deleteAllFinger();
+								IDFinger = 0;
+								break;
+							case 3: // Ch?n ch?c nang XEM GI?
+								beep(300, 1);
+								xemgio();
+								break;
+							default:
+								break;
+						}
+						break;
+					case 2: // Nh?n joystick sang trái d? chuy?n sang ch?c nang tru?c dó
+						beep(100, 1);
+						IDFunc--;
+						if (IDFunc < 0) {
+							IDFunc = 3;
+						}
+						break;
+					case 3: // Nh?n joystick sang ph?i d? chuy?n sang ch?c nang k? ti?p
+						beep(100, 1);
+						IDFunc++;
+						if (IDFunc >= 4) {
+							IDFunc = 0;
+						}
+						break;
+					default:
+						break;
+				}
 
     /* USER CODE BEGIN 3 */
   }
@@ -231,7 +243,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -246,13 +258,12 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_USB;
-  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV4;
-  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -380,44 +391,6 @@ static void MX_I2C2_Init(void)
   /* USER CODE BEGIN I2C2_Init 2 */
 
   /* USER CODE END I2C2_Init 2 */
-
-}
-
-/**
-  * @brief SPI1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_SPI1_Init(void)
-{
-
-  /* USER CODE BEGIN SPI1_Init 0 */
-
-  /* USER CODE END SPI1_Init 0 */
-
-  /* USER CODE BEGIN SPI1_Init 1 */
-
-  /* USER CODE END SPI1_Init 1 */
-  /* SPI1 parameter configuration*/
-  hspi1.Instance = SPI1;
-  hspi1.Init.Mode = SPI_MODE_MASTER;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 10;
-  if (HAL_SPI_Init(&hspi1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN SPI1_Init 2 */
-
-  /* USER CODE END SPI1_Init 2 */
 
 }
 
@@ -578,21 +551,11 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-
   /*Configure GPIO pin : PA4 */
   GPIO_InitStruct.Pin = GPIO_PIN_4;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PB0 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */

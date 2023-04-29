@@ -260,8 +260,8 @@ char* get_current_date_time(I2C_HandleTypeDef *hi2c2) {
     //DS1307_SetMonth(4);
     //DS1307_SetYear(2023);
     //DS1307_SetDayOfWeek(4);
-    //DS1307_SetHour(22);
-    //DS1307_SetMinute(54);
+    //DS1307_SetHour(9);
+    //DS1307_SetMinute(33);
     //DS1307_SetSecond(00); 
     /* Get current date and time. */
     uint8_t date = DS1307_GetDate();
@@ -270,9 +270,9 @@ char* get_current_date_time(I2C_HandleTypeDef *hi2c2) {
     uint8_t hour = DS1307_GetHour();
     uint8_t minute = DS1307_GetMinute();
     uint8_t second = DS1307_GetSecond();
-    char buffer[100] = { 0 };
-    sprintf(buffer, "%02u/%02u/%04u      %02u:%02u:%02u",
-            date, month, year, hour, minute, second);
+    char buffer[20] = { 0 };
+    sprintf(buffer, "%02u%02u%02u %02u:%02u:%02u",
+            date, month, year % 100, hour, minute, second);
 
     char* result = strdup(buffer);
     return result;
