@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "fatfs.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -29,7 +30,6 @@
 #include "finger.h"
 #include "string.h"
 #include "ds1307_for_stm32_hal.h"
-
 #include "stdlib.h"
 /* USER CODE END Includes */
 
@@ -55,6 +55,8 @@ DMA_HandleTypeDef hdma_adc1;
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
+SPI_HandleTypeDef hspi1;
+
 TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart1;
@@ -70,7 +72,7 @@ char cc6[] = {0x00, 0x0E, 0x11, 0x11, 0x11, 0x0A, 0x1B, 0x00};  // omega
 char cc7[] = {0x0E, 0x10, 0x17, 0x12, 0x12, 0x12, 0x10, 0x0E};  // CT
 char cc8[] = {0x04, 0x04, 0x1F, 0x04, 0x04, 0x00, 0x1F, 0x00};  // +-
 
-	char functions[4][20] = {
+char functions[4][20] = {
     "CHAM CONG",
     "THEM VAN TAY",
     "XOA TOAN BO",
@@ -81,6 +83,11 @@ char* datetime_str;
 int IDFunc = 0;
 int IDFinger = 0;
 
+FATFS fs;
+FIL fil;
+FRESULT res;
+UINT bytes_written;
+char buffer[] = "Hello from Nizar\n";
 
 /* USER CODE END PV */
 
@@ -92,6 +99,7 @@ static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_SPI1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
@@ -115,18 +123,58 @@ void xemgio(void)
         free(datetime_str);
 				HAL_Delay(1000);
 		}
-	    
+
 		else
 			break;
 	}
-	
+
 }
+
 /* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
   * @retval int
   */
+void testsdcard(void)
+{
+	FRESULT res;
+UINT bytes_written;
+char buffer[] = "dit cno me th son";
+
+res = f_mount(&fs, "", 0);
+if (res != FR_OK) {
+  sendlcd("Mount error");
+	HAL_Delay(1000);
+  return;
+}
+
+res = f_open(&fil, "test.txt", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
+if (res != FR_OK) {
+  sendlcd("Open error");
+	HAL_Delay(1000);
+  return;
+}
+
+f_lseek(&fil, fil.fsize);
+res = f_write(&fil, buffer, strlen(buffer), &bytes_written);
+if (res != FR_OK) {
+  sendlcd("Write error");
+	HAL_Delay(1000);
+  return;
+}
+
+res = f_close(&fil);
+if (res != FR_OK) {
+  sendlcd("Close error");
+	HAL_Delay(1000);
+  return;
+}
+
+sendlcd("Write succeeded");
+HAL_Delay(1000);
+
+}
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -156,20 +204,16 @@ int main(void)
   MX_USART1_UART_Init();
   MX_I2C2_Init();
   MX_USART2_UART_Init();
+  MX_SPI1_Init();
   MX_TIM2_Init();
   MX_ADC1_Init();
+  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 	joystick_init(&hadc1);
-	/* USER CODE BEGIN PD */
+	
 
-/* USER CODE END PD */
 
-  /* USER CODE BEGIN 2 */
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-			while (1)
+	while (1)
 			{
 				sendlcd(functions[IDFunc]); // hi?n th? ch?c nang hi?n t?i lên LCD
 				HAL_Delay(200);
@@ -195,7 +239,9 @@ int main(void)
 								break;
 							case 3: // Ch?n ch?c nang XEM GI?
 								beep(300, 1);
-								xemgio();
+								//xemgio();
+							testsdcard();
+					
 								break;
 							default:
 								break;
@@ -218,6 +264,15 @@ int main(void)
 					default:
 						break;
 				}
+			}
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
@@ -395,6 +450,44 @@ static void MX_I2C2_Init(void)
 }
 
 /**
+  * @brief SPI1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI1_Init(void)
+{
+
+  /* USER CODE BEGIN SPI1_Init 0 */
+
+  /* USER CODE END SPI1_Init 0 */
+
+  /* USER CODE BEGIN SPI1_Init 1 */
+
+  /* USER CODE END SPI1_Init 1 */
+  /* SPI1 parameter configuration*/
+  hspi1.Instance = SPI1;
+  hspi1.Init.Mode = SPI_MODE_MASTER;
+  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi1.Init.NSS = SPI_NSS_SOFT;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi1.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI1_Init 2 */
+
+  /* USER CODE END SPI1_Init 2 */
+
+}
+
+/**
   * @brief TIM2 Initialization Function
   * @param None
   * @retval None
@@ -551,11 +644,21 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : PA4 */
   GPIO_InitStruct.Pin = GPIO_PIN_4;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
