@@ -72,22 +72,28 @@ char cc6[] = {0x00, 0x0E, 0x11, 0x11, 0x11, 0x0A, 0x1B, 0x00};  // omega
 char cc7[] = {0x0E, 0x10, 0x17, 0x12, 0x12, 0x12, 0x10, 0x0E};  // CT
 char cc8[] = {0x04, 0x04, 0x1F, 0x04, 0x04, 0x00, 0x1F, 0x00};  // +-
 
-char functions[4][20] = {
+char functions[5][20] = {
     "CHAM CONG",
     "THEM VAN TAY",
     "XOA TOAN BO",
-		"XEM GIO"
+		"XEM GIO",
+		"GHI FILE"
 };
 char* datetime_str;
 
 int IDFunc = 0;
 int IDFinger = 0;
+int pID;
+
 
 FATFS fs;
 FIL fil;
-FRESULT res;
-UINT bytes_written;
-char buffer[] = "Hello from Nizar\n";
+
+typedef struct {
+  int id;
+  char ten[50];
+  int soLanChamCong;
+} nhanvien;
 
 /* USER CODE END PV */
 
@@ -136,45 +142,136 @@ void xemgio(void)
   * @brief  The application entry point.
   * @retval int
   */
-void testsdcard(void)
+void writesdcard(char* filename, char* data)
 {
-	FRESULT res;
-UINT bytes_written;
-char buffer[] = "dit cno me th son";
+    FRESULT res;
+    UINT bytes_written;
 
-res = f_mount(&fs, "", 0);
-if (res != FR_OK) {
-  sendlcd("Mount error");
-	HAL_Delay(1000);
-  return;
+    res = f_mount(&fs, "", 0);
+    if (res != FR_OK) {
+        sendlcd("Mount error");
+        HAL_Delay(1000);
+        return;
+    }
+
+    res = f_open(&fil, filename, FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
+    if (res != FR_OK) {
+        sendlcd("Open error");
+        HAL_Delay(1000);
+        return;
+    }
+
+    f_lseek(&fil, fil.fsize);
+    res = f_write(&fil, data, strlen(data), &bytes_written);
+    if (res != FR_OK) {
+        sendlcd("Write error");
+        HAL_Delay(1000);
+        return;
+    }
+
+    res = f_close(&fil);
+    if (res != FR_OK) {
+        sendlcd("Close error");
+        HAL_Delay(1000);
+        return;
+    }
+
+    sendlcd("Write succeeded");
+    HAL_Delay(1000);
 }
 
-res = f_open(&fil, "test.txt", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
-if (res != FR_OK) {
-  sendlcd("Open error");
-	HAL_Delay(1000);
-  return;
+void readsdcard()
+{
+  FIL fil;
+  FRESULT res;
+  char buffer[100];
+  char fileContent[100] = "";
+
+  /* Mount SD Card */
+  if(f_mount(&fs, "", 1) != FR_OK)
+  {
+    sendlcd("SD Card Mount Failed");
+    HAL_Delay(1000);
+    return;
+  }
+
+  /* Open file to read */
+  res = f_open(&fil, "buonngu.txt", FA_READ);
+  if (res != FR_OK)
+  {
+    sendlcd("Open error");
+    HAL_Delay(1000);
+    f_close(&fil);
+    return;
+  }
+
+  /* Reads line by line until the end */
+  while(f_gets(buffer, sizeof(buffer), &fil))
+  {
+    if (f_error(&fil)) {
+      sendlcd("Read error");
+      HAL_Delay(1000);
+      f_close(&fil);
+      return;
+    }
+
+    /* Concatenate file content to fileContent */
+    strcat(fileContent, buffer);
+  }
+
+  /* Close file */
+  res = f_close(&fil);
+  if (res != FR_OK)
+  {
+    sendlcd("Close error");
+    HAL_Delay(1000);
+    return;
+  }
+
+  /* Unmount SD Card */
+  f_mount(NULL, "", 1);
+
+  sendlcd(fileContent);
+  HAL_Delay(1500);
 }
 
-f_lseek(&fil, fil.fsize);
-res = f_write(&fil, buffer, strlen(buffer), &bytes_written);
-if (res != FR_OK) {
-  sendlcd("Write error");
-	HAL_Delay(1000);
-  return;
+
+
+
+
+nhanvien* findNhanvienByID(int id, char *filename)
+{
+    static nhanvien nv;
+    FRESULT res;
+
+    res = f_open(&fil, filename, FA_READ);
+    if (res != FR_OK) {
+        sendlcd("Open error");
+        f_close(&fil);
+        return NULL;
+    }
+
+    char buffer[100];
+    while(f_gets(buffer, sizeof(buffer), &fil))
+    {
+        char *token = strtok(buffer, ",");
+        int current_id = atoi(token);
+
+        if(current_id == id)
+        {
+            strcpy(nv.ten, strtok(NULL, ","));
+            nv.soLanChamCong = atoi(strtok(NULL, ",\n"));
+            nv.id = id;
+            f_close(&fil);
+            return &nv;
+        }
+    }
+
+    f_close(&fil);
+    return NULL;
 }
 
-res = f_close(&fil);
-if (res != FR_OK) {
-  sendlcd("Close error");
-	HAL_Delay(1000);
-  return;
-}
 
-sendlcd("Write succeeded");
-HAL_Delay(1000);
-
-}
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -225,7 +322,25 @@ int main(void)
 						switch (IDFunc) {
 							case 0: // Ch?n ch?c nang CH?M CÔNG
 								beep(300, 1);
-								verify_fingerprint();
+								pID=verify_fingerprint();
+								nhanvien* nv = findNhanvienByID(pID, "nhanvien.txt"); // Tìm thông tin c?a nhân viên có ID là pID
+
+									if(nv == NULL)
+									{
+											// Hi?n th? thông báo l?i n?u không tìm th?y thông tin nhân viên
+											sendlcd("Khong tim thay thong tin nhan vien!");
+									}
+									else
+									{
+											// C?p nh?t s? l?n ch?m công c?a nhân viên tuong ?ng
+											nv->soLanChamCong++;
+											char data[100];
+											sprintf(data, "%d,%s,%d\n", nv->id, nv->ten, nv->soLanChamCong);
+										sendlcd(data);
+										HAL_Delay(1500);
+											writesdcard("nhanvien.txt", data);
+									}
+							
 								break;
 							case 1: // Ch?n ch?c nang THÊM VÂN TAY
 								beep(300, 1);
@@ -240,8 +355,10 @@ int main(void)
 							case 3: // Ch?n ch?c nang XEM GI?
 								beep(300, 1);
 								//xemgio();
-							testsdcard();
-					
+							readsdcard();	
+							break;
+							case 4:
+							writesdcard("buonngu.txt","qua buon ngu");
 								break;
 							default:
 								break;
@@ -251,13 +368,13 @@ int main(void)
 						beep(100, 1);
 						IDFunc--;
 						if (IDFunc < 0) {
-							IDFunc = 3;
+							IDFunc = 4;
 						}
 						break;
 					case 3: // Nh?n joystick sang ph?i d? chuy?n sang ch?c nang k? ti?p
 						beep(100, 1);
 						IDFunc++;
-						if (IDFunc >= 4) {
+						if (IDFunc >4) {
 							IDFunc = 0;
 						}
 						break;

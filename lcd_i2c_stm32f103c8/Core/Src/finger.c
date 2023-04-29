@@ -11,7 +11,7 @@
 #include <stdbool.h> 
 #include "i2c-lcd.h"
 #include "buzz.h"
-uint8_t pID;
+extern uint8_t pID;
 uint8_t tmp = 0xff;
 uint8_t receive_finger(uint8_t len)
 {
