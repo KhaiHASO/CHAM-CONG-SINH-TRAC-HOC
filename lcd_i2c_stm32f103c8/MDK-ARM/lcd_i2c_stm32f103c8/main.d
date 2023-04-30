@@ -47,3 +47,4 @@ lcd_i2c_stm32f103c8\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/finger.h
 lcd_i2c_stm32f103c8\main.o: ../Core/Inc/ds1307_for_stm32_hal.h
 lcd_i2c_stm32f103c8\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+lcd_i2c_stm32f103c8\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h

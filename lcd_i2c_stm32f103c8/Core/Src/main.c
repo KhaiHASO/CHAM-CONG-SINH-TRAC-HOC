@@ -31,6 +31,7 @@
 #include "string.h"
 #include "ds1307_for_stm32_hal.h"
 #include "stdlib.h"
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -77,14 +78,14 @@ char functions[5][20] = {
     "THEM VAN TAY",
     "XOA TOAN BO",
 		"XEM GIO",
-		"GHI FILE"
+		"KHOI TAO"
 };
-char* datetime_str;
+char* datetime_str = "";
 
 int IDFunc = 0;
-int IDFinger = 0;
+int IDFinger =0;
 int pID;
-
+char fileContent[1000] = "";  
 
 FATFS fs;
 FIL fil;
@@ -93,8 +94,15 @@ typedef struct {
   int id;
   char ten[50];
   int soLanChamCong;
-} nhanvien;
+} Employee;
+Employee *nv;
 
+typedef struct {
+  Employee emloyee;
+  char* giovao;
+	char* giora;
+} Job;
+Job* job;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -131,7 +139,11 @@ void xemgio(void)
 		}
 
 		else
+		{
+			beep(500,1);
 			break;
+		}
+			
 	}
 
 }
@@ -180,12 +192,13 @@ void writesdcard(char* filename, char* data)
     HAL_Delay(1000);
 }
 
-void readsdcard()
+
+void readsdcard(const char* fileName)
 {
   FIL fil;
   FRESULT res;
   char buffer[100];
-  char fileContent[100] = "";
+// Tang kích thu?c fileContent d? có th? luu du?c nhi?u hon
 
   /* Mount SD Card */
   if(f_mount(&fs, "", 1) != FR_OK)
@@ -196,7 +209,7 @@ void readsdcard()
   }
 
   /* Open file to read */
-  res = f_open(&fil, "buonngu.txt", FA_READ);
+  res = f_open(&fil, fileName, FA_READ);
   if (res != FR_OK)
   {
     sendlcd("Open error");
@@ -230,48 +243,283 @@ void readsdcard()
 
   /* Unmount SD Card */
   f_mount(NULL, "", 1);
-
   sendlcd(fileContent);
   HAL_Delay(1500);
 }
 
-
-
-
-
-nhanvien* findNhanvienByID(int id, char *filename)
-{
-    static nhanvien nv;
+void writeEmployeeToFile(Employee* emp, const char* filename) {
+    FIL fp;
     FRESULT res;
+    UINT bytes_written;
 
-    res = f_open(&fil, filename, FA_READ);
+    res = f_mount(&fs, "", 0);
     if (res != FR_OK) {
-        sendlcd("Open error");
-        f_close(&fil);
+        return;
+    }
+
+    res = f_open(&fp, filename, FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
+    if (res != FR_OK) {
+        return;
+    }
+
+    f_lseek(&fp, f_size(&fp));
+    res = f_write(&fp, emp, sizeof(Employee), &bytes_written);
+    if (res != FR_OK) {
+        return;
+    }
+		
+		res = f_sync(&fp);
+    if (res != FR_OK) {
+        return;
+    }
+
+    res = f_close(&fp);
+    if (res != FR_OK) {
+        return;
+    }
+}
+
+Employee* readEmployeeFromFile(const char* filename, int id) {
+    FIL fp;
+    FRESULT res;
+    UINT bytes_read;
+
+    res = f_mount(&fs, "", 0);
+    if (res != FR_OK) {
         return NULL;
     }
 
-    char buffer[100];
-    while(f_gets(buffer, sizeof(buffer), &fil))
-    {
-        char *token = strtok(buffer, ",");
-        int current_id = atoi(token);
+    res = f_open(&fp, filename, FA_READ);
+    if (res != FR_OK) {
+        return NULL;
+    }
 
-        if(current_id == id)
-        {
-            strcpy(nv.ten, strtok(NULL, ","));
-            nv.soLanChamCong = atoi(strtok(NULL, ",\n"));
-            nv.id = id;
-            f_close(&fil);
-            return &nv;
+    Employee* emp = (Employee*) malloc(sizeof(Employee));
+    while (f_read(&fp, emp, sizeof(Employee), &bytes_read) == FR_OK && bytes_read == sizeof(Employee)) {
+        if (emp->id == id) {
+            f_close(&fp);
+            return emp;
         }
     }
 
-    f_close(&fil);
+    f_close(&fp);
+    free(emp);
     return NULL;
 }
 
+void updateEmployeeInFile(Employee* emp, const char* filename) {
+    FIL fp;
+    FRESULT res;
+    UINT bytes_written;
+    UINT bytes_read;
+    Employee* cur_emp;
 
+    res = f_mount(&fs, "", 0);
+    if (res != FR_OK) {
+        return;
+    }
+
+    res = f_open(&fp, filename, FA_OPEN_EXISTING | FA_READ | FA_WRITE);
+    if (res != FR_OK) {
+        return;
+    }
+
+    while (f_read(&fp, cur_emp, sizeof(Employee), &bytes_read) == FR_OK && bytes_read == sizeof(Employee)) {
+        if (cur_emp->id == emp->id) {
+            f_lseek(&fp, fp.fptr - sizeof(Employee)); // Di chuy?n con tr? d?n d?u dòng c?a Employee c?n c?p nh?t
+            res = f_write(&fp, emp, sizeof(Employee), &bytes_written); // Ghi dè thông tin Employee
+            if (res != FR_OK) {
+                return;
+            }
+            break; // Ðã c?p nh?t xong, thoát kh?i vòng l?p while
+        }
+    }
+
+    res = f_close(&fp);
+    if (res != FR_OK) {
+        return;
+    }
+}
+
+int countEmployees(const char* filename) {
+    FIL fp;
+    FRESULT res;
+    UINT bytes_read;
+    int count = 0;
+
+    res = f_mount(&fs, "", 0);
+    if (res != FR_OK) {
+        return -1;
+    }
+
+    res = f_open(&fp, filename, FA_READ);
+    if (res != FR_OK) {
+        return -1;
+    }
+
+    Employee* emp = (Employee*) malloc(sizeof(Employee));
+    while (f_read(&fp, emp, sizeof(Employee), &bytes_read) == FR_OK && bytes_read == sizeof(Employee)) {
+        count++;
+    }
+
+    f_close(&fp);
+    free(emp);
+    return count;
+}
+
+
+void writeJobToFile(Job* job, const char* filename) {
+    FIL fp;
+    FRESULT res;
+    UINT bytes_written;
+
+    res = f_mount(&fs, "", 0);
+    if (res != FR_OK) {
+        return;
+    }
+
+    res = f_open(&fp, filename, FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
+    if (res != FR_OK) {
+        return;
+    }
+
+    f_lseek(&fp, f_size(&fp));
+    res = f_write(&fp, job, sizeof(Job), &bytes_written);
+    if (res != FR_OK) {
+        return;
+    }
+
+    res = f_close(&fp);
+    if (res != FR_OK) {
+        return;
+    }
+}
+
+
+Job* readJobFromFile(const char* filename, int id) {
+    FIL fp;
+    FRESULT res;
+    UINT bytes_read;
+
+    res = f_mount(&fs, "", 0);
+    if (res != FR_OK) {
+        return NULL;
+    }
+
+    res = f_open(&fp, filename, FA_READ);
+    if (res != FR_OK) {
+        return NULL;
+    }
+
+    Job* job = (Job*) malloc(sizeof(Job));
+    while (f_read(&fp, job, sizeof(Job), &bytes_read) == FR_OK && bytes_read == sizeof(Job)) {
+        if (job->emloyee.id==id) {
+            f_close(&fp);
+            return job;
+        }
+    }
+
+    f_close(&fp);
+    free(job);
+    return NULL;
+}
+
+void updateJobInFile(Job* job, const char* filename) {
+    FIL fp;
+    FRESULT res;
+    UINT bytes_written;
+    UINT bytes_read;
+    Job* cur_job;
+
+    res = f_mount(&fs, "", 0);
+    if (res != FR_OK) {
+        return;
+    }
+
+    res = f_open(&fp, filename, FA_OPEN_EXISTING | FA_READ | FA_WRITE);
+    if (res != FR_OK) {
+        return;
+    }
+
+    while (f_read(&fp, cur_job, sizeof(Job), &bytes_read) == FR_OK && bytes_read == sizeof(Job)) {
+        if (cur_job->emloyee.id == job->emloyee.id) {
+            f_lseek(&fp, fp.fptr - sizeof(Job)); // Di chuy?n con tr? d?n d?u dòng c?a Job c?n c?p nh?t
+            res = f_write(&fp, job, sizeof(Job), &bytes_written); // Ghi dè thông tin Job
+            if (res != FR_OK) {
+                return;
+            }
+            break; // Ðã c?p nh?t xong, thoát kh?i vòng l?p while
+        }
+    }
+
+    res = f_close(&fp);
+    if (res != FR_OK) {
+        return;
+    }
+}
+
+void clearFile(const char* filename) {
+    FIL fp;
+    FRESULT res;
+
+    res = f_mount(&fs, "", 0);
+    if (res != FR_OK) {
+        return;
+    }
+
+    res = f_open(&fp, filename, FA_CREATE_ALWAYS | FA_WRITE);
+    if (res != FR_OK) {
+        return;
+    }
+
+    res = f_truncate(&fp); // Xóa n?i dung c?a file
+    if (res != FR_OK) {
+        return;
+    }
+
+    res = f_close(&fp);
+    if (res != FR_OK) {
+        return;
+    }
+}
+void displayEmployeeJobInfo(Employee* emp, Job* job) {
+    char display_str[50]; // khai báo m?t m?ng char d? l?n d? ch?a chu?i
+
+sprintf(display_str, "Ten:%s", emp->ten); // ghép chu?i "Ten: " và tên c?a nhân viên
+sendlcd(display_str); // hi?n th? chu?i lên LCD
+HAL_Delay(2000);
+
+sprintf(display_str, "So lan cham cong:%d", emp->soLanChamCong); // ghép chu?i "So lan cham cong: " và s? l?n ch?m công c?a nhân viên
+sendlcd(display_str); // hi?n th? chu?i lên LCD
+HAL_Delay(2000);
+
+sprintf(display_str, "Gio vao:  %s", job->giovao); // ghép chu?i "Gio vao: " và gi? vào c?a công vi?c
+sendlcd(display_str); // hi?n th? chu?i lên LCD
+HAL_Delay(2000);
+
+sprintf(display_str, "Gio ra:  %s", job->giora); // ghép chu?i "Gio ra: " và gi? ra c?a công vi?c
+sendlcd(display_str); // hi?n th? chu?i lên LCD
+HAL_Delay(2000);
+NVIC_SystemReset();
+}
+ void khoitaodoituong(void)
+ {
+		Employee emp1 = {0, "Phan Hoang Khai", 0};
+		Employee emp2 = {1, "Nguyen Hoang Thien Bao", 0};
+		Employee emp3 = {2, "Nguyen Hong Son", 0};
+
+		writeEmployeeToFile(&emp1, "employees.bin");
+		writeEmployeeToFile(&emp2, "employees.bin");
+		writeEmployeeToFile(&emp3, "employees.bin");
+			
+		Job Job1 = {emp1, "", ""};
+		Job Job2= {emp2, "", ""};
+		Job Job3 = {emp3, "", ""};
+
+		writeJobToFile(&Job1, "jobs.bin");
+		writeJobToFile(&Job2, "jobs.bin");
+		writeJobToFile(&Job3, "jobs.bin");
+ }
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -323,42 +571,57 @@ int main(void)
 							case 0: // Ch?n ch?c nang CH?M CÔNG
 								beep(300, 1);
 								pID=verify_fingerprint();
-								nhanvien* nv = findNhanvienByID(pID, "nhanvien.txt"); // Tìm thông tin c?a nhân viên có ID là pID
-
-									if(nv == NULL)
-									{
-											// Hi?n th? thông báo l?i n?u không tìm th?y thông tin nhân viên
-											sendlcd("Khong tim thay thong tin nhan vien!");
-									}
-									else
-									{
-											// C?p nh?t s? l?n ch?m công c?a nhân viên tuong ?ng
-											nv->soLanChamCong++;
-											char data[100];
-											sprintf(data, "%d,%s,%d\n", nv->id, nv->ten, nv->soLanChamCong);
-										sendlcd(data);
-										HAL_Delay(1500);
-											writesdcard("nhanvien.txt", data);
-									}
-							
+								if(pID ==-1)
+									break;
+								nv=readEmployeeFromFile("employees.bin",pID);
+								nv->soLanChamCong++;				
+								if(nv->soLanChamCong%2!=0)
+								{
+									job=readJobFromFile("jobs.bin",nv->id);
+									datetime_str=get_current_date_time(&hi2c2);
+									job->giovao=datetime_str;
+									job->giora="0";
+									updateJobInFile(job,"jobs.bin");
+								}
+								else
+								{
+									job=readJobFromFile("jobs.bin",nv->id);
+									datetime_str=get_current_date_time(&hi2c2);
+									job->giora=datetime_str;
+									updateJobInFile(job,"jobs.bin");
+								}
+								updateEmployeeInFile(nv,"employees.bin");
+								//nv=readEmployeeFromFile("employees.bin",pID);
+								//job=readJobFromFile("jobs.bin",nv->id);
+								displayEmployeeJobInfo(nv,job);
 								break;
 							case 1: // Ch?n ch?c nang THÊM VÂN TAY
 								beep(300, 1);
-								addFinger(IDFinger);
-								IDFinger++;
+								int countNV=countEmployees("employees.bin");
+								if(countNV==0)
+								{			
+									addFinger(IDFinger);
+									IDFinger++;
+									break;
+								}
+								else
+									addFinger(countNV);						
 								break;
 							case 2: // Ch?n ch?c nang XÓA TOÀN B?
 								beep(300, 1);
 								deleteAllFinger();
-								IDFinger = 0;
+								clearFile("employees.bin");
+								clearFile("jobs.bin");
 								break;
 							case 3: // Ch?n ch?c nang XEM GI?
 								beep(300, 1);
-								//xemgio();
-							readsdcard();	
+								xemgio();
 							break;
 							case 4:
-							writesdcard("buonngu.txt","qua buon ngu");
+								beep(300, 1);
+								khoitaodoituong();
+								sendlcd("Khoi tao 3 doi tuong");
+								HAL_Delay(1000);
 								break;
 							default:
 								break;
@@ -385,14 +648,9 @@ int main(void)
 
   /* USER CODE END 2 */
 
+			
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-  }
   /* USER CODE END 3 */
 }
 

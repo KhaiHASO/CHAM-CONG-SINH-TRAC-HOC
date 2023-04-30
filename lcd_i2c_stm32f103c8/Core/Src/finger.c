@@ -11,6 +11,7 @@
 #include <stdbool.h> 
 #include "i2c-lcd.h"
 #include "buzz.h"
+#include "stdio.h"
 extern uint8_t pID;
 uint8_t tmp = 0xff;
 uint8_t receive_finger(uint8_t len)
@@ -201,6 +202,10 @@ void addFinger(int ID)
 	beep(50,2);
   HAL_Delay(1000);
   tmp = 0xff;
+	char lcd_buffer[20];
+	sprintf(lcd_buffer, "ID cua ban la: %d", ID);
+	sendlcd(lcd_buffer);
+	HAL_Delay(1000);
 }
 
 int verify_fingerprint()
@@ -221,7 +226,7 @@ int verify_fingerprint()
     } else {
         // Fingerprint match not found
 			sendlcd("not found");
-			HAL_Delay(2000);
+			HAL_Delay(500);
 			beep(500,2);
         return -1;
     }
@@ -230,7 +235,8 @@ void deleteAllFinger(void)
 {
 	empty();
 	beep(500,2);
-	sendlcd("Xoa toan bo");
+	sendlcd("Successful");
+	HAL_Delay(500);
 	
 }
 
