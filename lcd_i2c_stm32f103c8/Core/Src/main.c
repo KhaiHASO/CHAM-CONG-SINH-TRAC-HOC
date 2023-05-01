@@ -93,14 +93,14 @@ FIL fil;
 typedef struct {
   int id;
   char ten[50];
-  int soLanChamCong;
 } Employee;
 Employee *nv;
 
 typedef struct {
   Employee emloyee;
-  char* giovao;
-	char* giora;
+	bool isGioVao;
+  char giovao[20];
+	char giora[20];
 } Job;
 Job* job;
 /* USER CODE END PV */
@@ -487,34 +487,33 @@ void displayEmployeeJobInfo(Employee* emp, Job* job) {
 
 sprintf(display_str, "Ten:%s", emp->ten); // ghép chu?i "Ten: " và tên c?a nhân viên
 sendlcd(display_str); // hi?n th? chu?i lên LCD
-HAL_Delay(2000);
-
-sprintf(display_str, "So lan cham cong:%d", emp->soLanChamCong); // ghép chu?i "So lan cham cong: " và s? l?n ch?m công c?a nhân viên
-sendlcd(display_str); // hi?n th? chu?i lên LCD
+	beep(100,1);
 HAL_Delay(2000);
 
 sprintf(display_str, "Gio vao:  %s", job->giovao); // ghép chu?i "Gio vao: " và gi? vào c?a công vi?c
 sendlcd(display_str); // hi?n th? chu?i lên LCD
+	beep(100,1);
 HAL_Delay(2000);
 
 sprintf(display_str, "Gio ra:  %s", job->giora); // ghép chu?i "Gio ra: " và gi? ra c?a công vi?c
 sendlcd(display_str); // hi?n th? chu?i lên LCD
+	beep(100,1);
 HAL_Delay(2000);
 NVIC_SystemReset();
 }
  void khoitaodoituong(void)
  {
-		Employee emp1 = {0, "Phan Hoang Khai", 0};
-		Employee emp2 = {1, "Nguyen Hoang Thien Bao", 0};
-		Employee emp3 = {2, "Nguyen Hong Son", 0};
+		Employee emp1 = {0, "Phan Hoang Khai"};
+		Employee emp2 = {1, "Nguyen Hoang Thien Bao"};
+		Employee emp3 = {2, "Nguyen Hong Son"};
 
 		writeEmployeeToFile(&emp1, "employees.bin");
 		writeEmployeeToFile(&emp2, "employees.bin");
 		writeEmployeeToFile(&emp3, "employees.bin");
 			
-		Job Job1 = {emp1, "", ""};
-		Job Job2= {emp2, "", ""};
-		Job Job3 = {emp3, "", ""};
+		Job Job1 = {emp1, true, "", ""};
+		Job Job2= {emp2, true, "", ""};
+		Job Job3 = {emp3, true, "", ""};
 
 		writeJobToFile(&Job1, "jobs.bin");
 		writeJobToFile(&Job2, "jobs.bin");
@@ -554,6 +553,7 @@ int main(void)
   MX_ADC1_Init();
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
+	  lcd_init();
 	joystick_init(&hadc1);
 	
 
@@ -574,23 +574,17 @@ int main(void)
 								if(pID ==-1)
 									break;
 								nv=readEmployeeFromFile("employees.bin",pID);
-								nv->soLanChamCong++;				
-								if(nv->soLanChamCong%2!=0)
-								{
-									job=readJobFromFile("jobs.bin",nv->id);
-									datetime_str=get_current_date_time(&hi2c2);
-									job->giovao=datetime_str;
-									job->giora="0";
-									updateJobInFile(job,"jobs.bin");
-								}
-								else
-								{
-									job=readJobFromFile("jobs.bin",nv->id);
-									datetime_str=get_current_date_time(&hi2c2);
-									job->giora=datetime_str;
-									updateJobInFile(job,"jobs.bin");
-								}
-								updateEmployeeInFile(nv,"employees.bin");
+							job=readJobFromFile("jobs.bin",nv->id);	
+							if(job->isGioVao==true) {
+									strcpy(job->giovao, get_current_date_time(&hi2c2));
+									strcpy(job->giora, "  ");
+									job->isGioVao = false; // Ðánh d?u dã ghi nh?n gi? vào
+							} else {
+									strcpy(job->giora, get_current_date_time(&hi2c2));
+									job->isGioVao = true; // Ðánh d?u dã ghi nh?n gi? ra
+							}
+							updateJobInFile(job,"jobs.bin");
+							updateEmployeeInFile(nv,"employees.bin");
 								//nv=readEmployeeFromFile("employees.bin",pID);
 								//job=readJobFromFile("jobs.bin",nv->id);
 								displayEmployeeJobInfo(nv,job);
